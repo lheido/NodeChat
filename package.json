@@ -4,6 +4,7 @@
     "socket.io": "latest",
     "socket.io-client": "latest",
     "ansi-color": "latest",
-    "express": "latest"
+    "express": "latest",
+    "readline2": "latest"
   }
 }
