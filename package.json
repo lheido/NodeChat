@@ -1,0 +1,9 @@
+{
+  "name": "ChatExample",
+  "dependencies": {
+    "socket.io": "latest",
+    "socket.io-client": "latest",
+    "ansi-color": "latest",
+    "express": "latest"
+  }
+}
