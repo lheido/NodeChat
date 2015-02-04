@@ -10,7 +10,9 @@ users.push(me);
 
 function traitementDeLaCommande(commandeUser, currentSocket, currentUser){
     messageSend = false;
+
     if(commandeUser['type'] == '@'){
+        //TRAITMENT DU MESSAGE PRIVER
         for(var i= 0; i < io.sockets.sockets.length; i++ ){
             console.log(io.sockets.sockets[i].user.pseudo);
             if(io.sockets.sockets[i].user.pseudo == commandeUser['commande']){
@@ -42,7 +44,7 @@ io.on('connection', function (socket) {
         if( !commandeUser )
             io.sockets.emit(utils.MESSAGE_RECEIVED, msg, this.user);
         else{
-            traitementDeLaCommande(commandeUser, socket, user);
+            traitementDeLaCommande(commandeUser, socket, this.user);
         }
     }
 
