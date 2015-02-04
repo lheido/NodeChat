@@ -7,72 +7,110 @@ var utils = require('./utils.js');
 var pseudo = "Unknow User",
     userColor = 'yellow';
 
-function init() {
-    var user = utils.User(pseudo, userColor);
+var client = new utils.Client(
+    false,
+    io,
+    'http://localhost:'+utils.PORT
+);
 
-    rl.setPrompt(color("> ", userColor), 2);
-    rl.prompt(true);
-
-    var socket = io.connect('http://192.168.43.202:8181');
-
-    socket.emit(utils.USER_CONNECTED, user);
-
-    rl.on(utils.TERM_LINE, function (msg) {
-        socket.emit(utils.message, msg, user);
-        rl.prompt(true);
-    });
-
-    rl.on(utils.TERM_CLOSE, function(){
-        console.log("\nClosed");
-        rl.close();
-        socket.emit(utils.USER_DISCONNECTED, user);
-    });
-
-    socket.on(utils.CHAT_MESSAGE, function (msg, user) {
-        console.log(msg);
-        rl.prompt(true);
-    });
-
-    socket.on(utils.USER_CONNECTED, function(user){
-        console.log(color(user.pseudo + " is connected", 'italic'));
-        rl.prompt(true);
-    });
-
-    socket.on(utils.USER_DISCONNECTED, function(userDisconnected){
-        if (user.pseudo === userDisconnected.pseudo) {
-            console.log(color("Bye bye!", 'italic'));
-            process.exit(0);
-        } else {
-            console.log(color(userDisconnected.pseudo + " is disconnected", 'italic'));
-        }
-    });
+client.onUserConnected = function(user) {
+    console.log(user.pseudo);
+}
+client.onUserDisconnected = function(user) {
+    console.log(user.pseudo + " was disconnected.");
+}
+client.onMessageSend = function(msg, user) {
+    throw "onMessageSend implemented";
+}
+client.onMessageReceived = function(msg, user) {
+    throw "onMessageReceived implemented";
 }
 
-process.argv.forEach(function(val, index, array){
-    switch (index) {
-        case 2:
-            pseudo = val;
-            break;
-        case 3:
-            userColor = val;
-            break;
-        default:
-            break;
-    }
-});
-
-if (pseudo === "Unknow User") {
+client.addQuestion(function(){
     rl.question(color("Pseudo ?", 'green')+" (Unknow User) ", function(answer) {
-        if (answer != '') {
+        if (answer) {
             pseudo = answer;
         }
-        rl.question(color("Color ?", 'green')+" (yellow) ", function(answer) {
-            if (answer !== ""){
-                userColor = answer;
-            }
-            init();
-        });
+        client.nextQuestion();
     });
-} else {
-    init();
-}
+});
+
+client.addQuestion(function(){
+    rl.question(color("Color ?", 'green')+" (yellow) ", function(answer) {
+        if (answer){
+            userColor = answer;
+        }
+        client.setUser(pseudo, userColor);
+        client.init();
+    });
+});
+
+rl.on('line', function (msg) {
+    client.emit(utils.MESSAGE_SEND, msg, client.getUser());
+    rl.prompt(true);
+});
+
+rl.on('SIGINT', function(){
+    console.log("\nClosed");
+    rl.close();
+    client.emit(utils.USER_DISCONNECTED, client.getUser());
+    process.exit(0);
+});
+
+client.question();
+
+// process.exit(0);
+
+// function init() {
+//     var user = utils.User(pseudo, userColor);
+//
+//     rl.setPrompt(color("> ", userColor), 2);
+//     rl.prompt(true);
+//
+//     var socket = io.connect('http://192.168.43.202:8181');
+//
+//     socket.emit(utils.USER_CONNECTED, user);
+//
+//     rl.on(utils.TERM_LINE, function (msg) {
+//         socket.emit(utils.message, msg, user);
+//         rl.prompt(true);
+//     });
+//
+//     rl.on(utils.TERM_CLOSE, function(){
+//         console.log("\nClosed");
+//         rl.close();
+//         socket.emit(utils.USER_DISCONNECTED, user);
+//     });
+//
+//     socket.on(utils.CHAT_MESSAGE, function (msg, user) {
+//         console.log(msg);
+//         rl.prompt(true);
+//     });
+//
+//     socket.on(utils.USER_CONNECTED, function(user){
+//         console.log(color(user.pseudo + " is connected", 'italic'));
+//         rl.prompt(true);
+//     });
+//
+//     socket.on(utils.USER_DISCONNECTED, function(userDisconnected){
+//         if (user.pseudo === userDisconnected.pseudo) {
+//             console.log(color("Bye bye!", 'italic'));
+//             process.exit(0);
+//         } else {
+//             console.log(color(userDisconnected.pseudo + " is disconnected", 'italic'));
+//         }
+//     });
+// }
+
+// process.argv.forEach(function(val, index, array){
+//     switch (index) {
+//         case 2:
+//             pseudo = val;
+//             break;
+//         case 3:
+//             userColor = val;
+//             break;
+//         default:
+//             break;
+//     }
+// });

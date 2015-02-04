@@ -2,16 +2,18 @@
 var app    = require('express')();
 var server = require('http').Server(app);
 var io     = require('socket.io').listen(server);
+var utils  = require('./utils.js');
 
-var PORT   = 8080;
+var PORT   = utils.PORT;
 
 io.on('connection', function (socket) {
-    console.log('user connected');
-    socket.on('user connected', function(user){
+    socket.on(utils.USER_CONNECTED, function(user){
+        console.log("connect : "+user);
         io.sockets.emit("user connected", user);
     });
-    socket.on('chat message', function (msg) {
-        io.sockets.emit('chat message', msg);
+    socket.on(utils.USER_DISCONNECTED, function(user){
+        console.log("disconnect : "+user);
+        io.sockets.emit("user disconnected", user);
     });
 });
 
