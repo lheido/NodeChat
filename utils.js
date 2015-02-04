@@ -3,8 +3,11 @@ var USER_CONNECTED = 'user connected',
     MESSAGE_SEND = 'message send',
     MESSAGE_RECEIVED = 'message received',
     MESSAGE_PRIVATE = 'message private',
+    SHOW_WHOS_ONLINE = 'show whos online',
     PORT = 8181,
-    commandes = new Array('users');
+    commandes = {
+        'users' : 'users',
+    };
 var reCommande = /^(\/|@)(\w*) ?(.*)/;
 
 function User(pseudo, color) {
@@ -83,6 +86,10 @@ Client.prototype.onMessagePrivate = function(msg, fromUser) {
     throw "Must be implemented";
 }
 
+Client.prototype.onReceivedWhosOnline = function(users) {
+    console.log(users);
+}
+
 Client.prototype.init = function() {
     var isClient = false;
     if (!this.socket) {
@@ -97,6 +104,8 @@ Client.prototype.init = function() {
     this.socket.on(USER_DISCONNECTED, this.onUserDisconnected);
     this.socket.on(MESSAGE_SEND, this.onMessageSend);
     this.socket.on(MESSAGE_RECEIVED, this.onMessageReceived);
+    this.socket.on(MESSAGE_PRIVATE, this.onMessagePrivate);
+    this.socket.on(SHOW_WHOS_ONLINE, this.onReceivedWhosOnline);
     if (isClient) {
         this.emit(USER_CONNECTED, this.user);
     }

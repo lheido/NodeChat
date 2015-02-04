@@ -4,7 +4,7 @@ var io    = require('socket.io-client');
 var color = require("ansi-color").set;
 var utils = require('./utils.js');
 
-var pseudo = "Unknow User",
+var pseudo = "UnknowUser",
     userColor = 'yellow';
 
 var client = new utils.Client(
@@ -14,26 +14,37 @@ var client = new utils.Client(
 );
 
 client.onUserConnected = function(user) {
-    console.log(user.pseudo);
+    rl.prompt(true);
+    console.log(color(user.pseudo+" is connected", 'italic'));
+    rl.prompt(true);
 }
 client.onUserDisconnected = function(user) {
-    console.log(user.pseudo + " was disconnected.");
+    rl.prompt(true);
+    console.log(color(user.pseudo + " was disconnected.", 'italic'));
+    rl.prompt(true);
 }
-client.onMessageSend = function(msg) {
-    console.log(msg);
-}
+
 client.onMessageReceived = function(msg, user) {
+    rl.prompt(true);
     console.log(user.pseudo+": "+msg);
+    rl.prompt(true);
 }
 
 client.onMessagePrivate = function(msg, user) {
-    console.log("P("+user.pseudo+"): "+msg);
+    rl.prompt(true);
+    console.log(color("From ", 'italic')+color(user.pseudo, user.color)+": "+msg);
+    rl.prompt(true);
 }
 
 client.addQuestion(function(){
-    rl.question(color("Pseudo ?", 'green')+" (Unknow User) ", function(answer) {
+    rl.question(color("Pseudo ?", 'green')+" (UnknowUser) ", function(answer) {
         if (answer) {
-            pseudo = answer;
+            if (answer.match(' ') == null) {
+                pseudo = answer;
+            } else {
+                console.log(color("Error : your pseudo must contain only alphanumeric chars.",'red'));
+                process.exit(0);
+            }
         }
         client.nextQuestion();
     });
@@ -46,6 +57,7 @@ client.addQuestion(function(){
         }
         client.setUser(pseudo, userColor);
         client.init();
+        rl.prompt(true);
     });
 });
 
