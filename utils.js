@@ -2,12 +2,10 @@ var USER_CONNECTED = 'user connected',
     USER_DISCONNECTED = 'user disconnected',
     MESSAGE_SEND = 'message send',
     MESSAGE_RECEIVED = 'message received',
+    MESSAGE_PRIVATE = 'message private',
     PORT = 8181,
     commandes = new Array('users');
 var reCommande = /^(\/|@)(\w*) ?(.*)/;
-
-// console.log(reCommande.exec("/exit"));
-// console.log(reCommande.exec("@lheido message"));
 
 function User(pseudo, color) {
     return {
@@ -77,7 +75,11 @@ Client.prototype.onMessageSend = function(msg) {
     throw "Must be implemented";
 }
 
-Client.prototype.onMessageReceived = function(msg, user) {
+Client.prototype.onMessageReceived = function(msg, fromUser) {
+    throw "Must be implemented";
+}
+
+Client.prototype.onMessagePrivate = function(msg, fromUser) {
     throw "Must be implemented";
 }
 
@@ -108,6 +110,7 @@ try {
         USER_DISCONNECTED   : USER_DISCONNECTED,
         MESSAGE_SEND        : MESSAGE_SEND,
         MESSAGE_RECEIVED    : MESSAGE_RECEIVED,
+        MESSAGE_PRIVATE     : MESSAGE_PRIVATE,
         PORT                : PORT,
         isCommande          : isCommande,
         commandes           : commandes,
