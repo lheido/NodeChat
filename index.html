@@ -117,7 +117,17 @@
         client.question();
 
         $('#messageuser').submit(function(){
-            client.emit(MESSAGE_SEND, $('#m').val());
+            var msg = $('#m').val();
+            var userCommande = isCommande(msg);
+            //On affiche le message s'il est priver
+            if( userCommande ){
+                if( userCommande['type'] == '@'){
+                    $('#messages').append($('<li>').text("from -> "+client.user.pseudo+" : "+userCommande['arg']));
+                }
+            }
+            //On envoie le message
+            client.emit(MESSAGE_SEND, msg);
+            $('#m').val('');
             return false;
         });
     </script>
