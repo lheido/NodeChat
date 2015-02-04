@@ -1,5 +1,6 @@
 
-var app    = require('express')();
+var express    = require('express');
+var app = express();
 var server = require('http').Server(app);
 var io     = require('socket.io').listen(server);
 var utils  = require('./utils.js');
@@ -62,7 +63,7 @@ io.on('connection', function (socket) {
         io.sockets.emit(utils.USER_DISCONNECTED, this.user);
     });
 });
-
+app.use(express.static(__dirname));
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
 });
