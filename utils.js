@@ -2,8 +2,14 @@ var USER_CONNECTED = 'user connected',
     USER_DISCONNECTED = 'user disconnected',
     MESSAGE_SEND = 'message send',
     MESSAGE_RECEIVED = 'message received',
-    PORT = 8181;
+    PORT = 8181,
+    commandes = new Array('exit');
+var reCommande = /^\/(.*) (.*)/;
 
+// console.log(reCommande);
+// console.log(reCommande.exec("/lheido message"));
+//
+// process.exit(0);
 function User(pseudo, color) {
     return {
         'pseudo' : pseudo,
@@ -56,14 +62,13 @@ Client.prototype.onUserDisconnected = function(user) {
     throw "Must be implemented";
 }
 
-Client.prototype.onMessageSend = function(msg, user) {
+Client.prototype.onMessageSend = function(msg) {
     throw "Must be implemented";
 }
 
 Client.prototype.onMessageReceived = function(msg, user) {
     throw "Must be implemented";
 }
-
 
 Client.prototype.init = function() {
     var isClient = false;
