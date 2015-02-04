@@ -1,8 +1,8 @@
-
-var rl    = require("readline2").createInterface(process.stdin, process.stdout);
-var io    = require('socket.io-client');
-var color = require("ansi-color").set;
-var utils = require('./utils.js');
+var notifier = require('node-notifier');
+var rl       = require("readline2").createInterface(process.stdin, process.stdout);
+var io       = require('socket.io-client');
+var color    = require("ansi-color").set;
+var utils    = require('./utils.js');
 
 var pseudo = "UnknowUser",
     userColor = 'yellow';
@@ -14,31 +14,44 @@ var client = new utils.Client(
 );
 
 client.onUserConnected = function(user) {
-    rl.prompt(true);
-    console.log(color(user.pseudo+" is connected", 'italic'));
-    rl.prompt(true);
-}
+    if (!(user.pseudo == client.user.pseudo && user.color == client.user.color)) {
+        notifier.notify({
+            'title': 'New user is connected:',
+            'message': user.pseudo,
+        });
+        rl.prompt(true);
+        console.log(color(user.pseudo+" is connected", 'italic'));
+        rl.prompt(true);
+    }
+};
 client.onUserDisconnected = function(user) {
     rl.prompt(true);
     console.log(color(user.pseudo + " was disconnected.", 'italic'));
     rl.prompt(true);
-}
+};
 
 client.onMessageReceived = function(msg, user) {
-    rl.prompt(true);
-    console.log(user.pseudo+": "+msg);
-    rl.prompt(true);
-}
+
+    if (!(user.pseudo == client.user.pseudo && user.color == client.user.color)) {
+        notifier.notify({
+            'title': 'New message received:',
+            'message': user.pseudo+": "+msg,
+        });
+        rl.prompt(true);
+        console.log(user.pseudo+": "+msg);
+        rl.prompt(true);
+    }
+};
 
 client.onMessagePrivate = function(msg, user) {
     rl.prompt(true);
     console.log(color("From ", 'italic')+color(user.pseudo, user.color)+": "+msg);
     rl.prompt(true);
-}
+};
 
 client.onReceivedWhosOnline = function(users) {
     console.log(users);
-}
+};
 
 client.addQuestion(function(){
     rl.question(color("Pseudo ?", 'green')+" (UnknowUser) ", function(answer) {
