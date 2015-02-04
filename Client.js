@@ -19,11 +19,11 @@ client.onUserConnected = function(user) {
 client.onUserDisconnected = function(user) {
     console.log(user.pseudo + " was disconnected.");
 }
-client.onMessageSend = function(msg, user) {
-    throw "onMessageSend implemented";
+client.onMessageSend = function(msg) {
+    console.log(msg);
 }
 client.onMessageReceived = function(msg, user) {
-    throw "onMessageReceived implemented";
+    console.log(user.pseudo+"> "+msg);
 }
 
 client.addQuestion(function(){
@@ -46,14 +46,13 @@ client.addQuestion(function(){
 });
 
 rl.on('line', function (msg) {
-    client.emit(utils.MESSAGE_SEND, msg, client.getUser());
+    client.emit(utils.MESSAGE_SEND, msg;
     rl.prompt(true);
 });
 
 rl.on('SIGINT', function(){
     console.log("\nClosed");
     rl.close();
-    client.emit(utils.USER_DISCONNECTED, client.getUser());
     process.exit(0);
 });
 
