@@ -3,7 +3,7 @@ var USER_CONNECTED = 'user connected',
     MESSAGE_SEND = 'message send',
     MESSAGE_RECEIVED = 'message received',
     PORT = 8181,
-    commandes = new Array('exit');
+    commandes = new Array('users');
 var reCommande = /^(\/|@)(\w*) ?(.*)/;
 
 // console.log(reCommande.exec("/exit"));
