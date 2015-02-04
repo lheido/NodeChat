@@ -14,7 +14,6 @@ function traitementDeLaCommande(commandeUser, currentSocket, currentUser){
     if(commandeUser['type'] == '@'){
         //TRAITMENT DU MESSAGE PRIVER
         for(var i= 0; i < io.sockets.sockets.length; i++ ){
-            console.log(io.sockets.sockets[i].user.pseudo);
             if(io.sockets.sockets[i].user.pseudo == commandeUser['commande']){
                 io.sockets.sockets[i].emit(utils.MESSAGE_PRIVATE, commandeUser.arg, currentUser);
                 messageSend = true;
@@ -24,7 +23,12 @@ function traitementDeLaCommande(commandeUser, currentSocket, currentUser){
             currentSocket.emit(utils.MESSAGE_PRIVATE, "User "+commandeUser.commande+" not exist",me);
     }
     else{
-        //TRAITEMENT DE LA COMMANDE
+        //TRAITEMENT DES COMMANDES
+        switch(commandeUser['commande']){
+            case utils.commandes.users:
+                currentSocket.emit(utils.SHOW_WHOS_ONLINE, users);
+                break;
+        }
     }
 }
 
@@ -35,7 +39,9 @@ io.on('connection', function (socket) {
     client.onUserConnected = function(user) {
         this.user = user;
         users.push(this.user);
-        io.sockets.emit(utils.USER_CONNECTED, this.user);
+
+        sockets.emit(utils.USER_CONNECTED, this.user);
+
         console.log("connect : "+this.user.pseudo);
     }
 
