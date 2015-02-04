@@ -120,6 +120,7 @@ try {
         MESSAGE_SEND        : MESSAGE_SEND,
         MESSAGE_RECEIVED    : MESSAGE_RECEIVED,
         MESSAGE_PRIVATE     : MESSAGE_PRIVATE,
+        SHOW_WHOS_ONLINE    : SHOW_WHOS_ONLINE,
         PORT                : PORT,
         isCommande          : isCommande,
         commandes           : commandes,

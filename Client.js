@@ -36,6 +36,10 @@ client.onMessagePrivate = function(msg, user) {
     rl.prompt(true);
 }
 
+client.onReceivedWhosOnline = function(users) {
+    console.log(users);
+}
+
 client.addQuestion(function(){
     rl.question(color("Pseudo ?", 'green')+" (UnknowUser) ", function(answer) {
         if (answer) {
