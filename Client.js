@@ -46,7 +46,7 @@ client.addQuestion(function(){
 });
 
 rl.on('line', function (msg) {
-    client.emit(utils.MESSAGE_SEND, msg;
+    client.emit(utils.MESSAGE_SEND, msg);
     rl.prompt(true);
 });
 
