@@ -4,7 +4,10 @@ var USER_CONNECTED = 'user connected',
     MESSAGE_RECEIVED = 'message received',
     PORT = 8181,
     commandes = new Array('exit');
-var reCommande = /^\/(.*) (.*)/;
+var reCommande = /^(\/|@)(\w*) ?(.*)/;
+
+// console.log(reCommande.exec("/exit"));
+// console.log(reCommande.exec("@lheido message"));
 
 function User(pseudo, color) {
     return {
@@ -21,14 +24,15 @@ function Client(socket, io, connectArg) {
     this.connectArg = (!connectArg) ? "": connectArg;
 }
 
-Client.prototype.isCommande = function(msg) {
+function isCommande(msg) {
     var result = reCommande.exec(msg);
-    if (!result && !result[1] in commandes) {
+    if (!result) {
         return false;
     }
     return {
-        'commande' : result[1],
-        'content'  : result[2],
+        'type'     : result[1],
+        'commande' : result[2],
+        'arg'  : result[3],
     };
 }
 
@@ -105,5 +109,6 @@ try {
         MESSAGE_SEND        : MESSAGE_SEND,
         MESSAGE_RECEIVED    : MESSAGE_RECEIVED,
         PORT                : PORT,
+        isCommande          : isCommande,
     }
 } catch (error) {}
