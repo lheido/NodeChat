@@ -2,13 +2,13 @@
 <html>
 <head>
     <title>Socket.IO chat</title>
-    
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font: 13px Helvetica, Arial; }
         .mess form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
         .mess form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-        .mess form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+        .mess form button {width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
         .dial{display: none;}
         .container{ display: inline-block; width: 100% ; height: 100%; }
         .user{ width: 20%; float: right;  }
@@ -20,23 +20,21 @@
         .popup {position:fixed; width: 20%; background-color: silver; top: 25%; left: 40%;border-radius: 10px; padding: 15px;display: none;}
         .popup form{width: 70%; margin: auto;}
         .nouveaumenbre{display : none ;position:fixed; width: 20%; background-color: silver; top: 5%; left: 40%;border-radius: 10px; padding: 15px; }
-        
 
-    </style>    
-    <script type="text/javascript" src="lib/jquery/jquery-1.7.2.js"></script>
-    <script type="text/javascript" src="lib/jquery/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="lib/jquery/jquery.effects.blind.js"></script>           
-    
+
+    </style>
+
 </head>
 <body>
-    
+
     <div class="container">
         <div class="mess" id="mess">
             <ul id="messages">
             </ul>
             <form id="messageuser" action="">
-                <input id="m" autocomplete="off" /><button>Send</button>
-            </form>        
+                <input id="m" autocomplete="off" />
+                <button>Send</button>
+            </form>
         </div>
         <div class="user" id="user">
             <ul id="userconnected">
@@ -44,7 +42,7 @@
         </div>
     </div>
     <div class="popup" id="popup">
-        <form action="" id="popupform" method="GET" name="conex"><!-- Attention return false -->
+        <form id="popupform" name="conex"><!-- Attention return false -->
             <label >  connexion : </label><br />
             <label>un petit pseudo</label><br />
             <input type="text" name="pseudo"> <br />
@@ -63,11 +61,11 @@
     <div class="nouveaumenbre" id="nouveaumenbre">
         <p>viens de se connecter</p>
     </div>
-    
+
     <script src="/utils.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="libs/jquery.js"></script>
     <script>
 
         var client = new Client(false,io,false);
@@ -78,45 +76,50 @@
         };
 
         client.onUserDisconnected = function(user){
+            console.log(user);
             $("#nouveaumenbre p").html(user.pseudo+" viens de se deconnecter");
-            $( "#nouveaumenbre" ).show(300).delay(2000).fadeOut(1000);
-            $('#user .connected').each(function(index,element){
-                if(element.html()==user.pseudo){
-                    element.remove();
+            $("#nouveaumenbre").show(300).delay(2000).fadeOut(1000);
+            $("#user li").each( function(){
+                if($(this).html() == user.pseudo){
+                    $(this).remove();
                 }
             });
         };
 
         client.onMessageReceived = function(message,user){
             $('#messages').append($('<li>').text(user.pseudo+" : "+message));
-        };  
+        };
 
         client.onMessagePrivate = function(message,user){
             $('#messages').append($('<li>').text("from -> "+user.pseudo+" : "+message));
-        };       
-        
+        };
+
+        client.onReceivedWhosOnline = function(users) {
+            $('#userconnected li').remove();
+            for(var i= 0; i < users.length; i++ ){
+                $('#userconnected').append($('<li class="connected">').text(users[i].pseudo));
+            }
+        }
+
         client.addQuestion(function(){
             $("#popup").show(0);
             $("#popupform").submit(function(){
                 var couleur = document.forms["conex"].elements["couleur"].value;
-                var pseudo = document.forms["conex"].elements["pseudo"].value; 
+                var pseudo = document.forms["conex"].elements["pseudo"].value;
                 $( "#popup" ).hide(0);
                 client.setUser(pseudo,couleur);
                 client.init();
+                client.emit(MESSAGE_SEND, "/users");
                 return false;
             });
-
-        })
+        });
 
         client.question();
 
-        $('messageuser').submit(function(){
-            var mess = $('#m').val();
-            client.emit(MESSAGE_SEND,mess)
-            $('#messages').append($('<li>').text(client.user.pseudo+" : "+mess));
-            $('#m').val('');
+        $('#messageuser').submit(function(){
+            client.emit(MESSAGE_SEND, $('#m').val());
             return false;
-        });           
+        });
     </script>
 </body>
 </html>

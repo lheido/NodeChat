@@ -40,8 +40,11 @@ io.on('connection', function (socket) {
     client.onUserConnected = function(user) {
         this.user = user;
         users.push(this.user);
-
-        io.sockets.emit(utils.USER_CONNECTED, this.user);
+        for(var i= 0; i < io.sockets.sockets.length; i++ ){
+            if(io.sockets.sockets[i].user != this.user){
+                io.sockets.sockets[i].emit(utils.USER_CONNECTED, this.user);
+            }
+        }
 
         console.log("connect : "+this.user.pseudo);
     }
@@ -58,7 +61,12 @@ io.on('connection', function (socket) {
     client.init();
 
     socket.on('disconnect',function(){
-        users.splice(this.user,1);
+        for(var i= 0; i < users.length; i++ ){
+            if(users[i] == this.user){
+                users.splice(i,1);
+            }
+        }
+
         console.log('user disconnected '+this.user.pseudo);
         io.sockets.emit(utils.USER_DISCONNECTED, this.user);
     });
