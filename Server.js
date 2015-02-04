@@ -40,7 +40,7 @@ io.on('connection', function (socket) {
         this.user = user;
         users.push(this.user);
 
-        sockets.emit(utils.USER_CONNECTED, this.user);
+        io.sockets.emit(utils.USER_CONNECTED, this.user);
 
         console.log("connect : "+this.user.pseudo);
     }
