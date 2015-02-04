@@ -6,10 +6,6 @@ var USER_CONNECTED = 'user connected',
     commandes = new Array('exit');
 var reCommande = /^\/(.*) (.*)/;
 
-// console.log(reCommande);
-// console.log(reCommande.exec("/lheido message"));
-//
-// process.exit(0);
 function User(pseudo, color) {
     return {
         'pseudo' : pseudo,
@@ -23,6 +19,17 @@ function Client(socket, io, connectArg) {
     this.socket = (socket) ? socket : false;
     this.io = (io) ? io : false;
     this.connectArg = (!connectArg) ? "": connectArg;
+}
+
+Client.prototype.isCommande = function(msg) {
+    var result = reCommande.exec(msg);
+    if (!result && !result[1] in commandes) {
+        return false;
+    }
+    return {
+        'commande' : result[1],
+        'content'  : result[2],
+    };
 }
 
 Client.prototype.setUser = function(pseudo, color, user){
