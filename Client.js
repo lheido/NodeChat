@@ -23,7 +23,11 @@ client.onMessageSend = function(msg) {
     console.log(msg);
 }
 client.onMessageReceived = function(msg, user) {
-    console.log(user.pseudo+"> "+msg);
+    console.log(user.pseudo+": "+msg);
+}
+
+client.onMessagePrivate = function(msg, user) {
+    console.log("P("+user.pseudo+"): "+msg);
 }
 
 client.addQuestion(function(){
