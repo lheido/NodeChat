@@ -91,7 +91,7 @@
         };
 
         client.onMessagePrivate = function(message,user){
-            $('#messages').append($('<li>').text("from -> "+user.pseudo+" : "+message));
+            $('#messages').append($('<li>').text("From "+user.pseudo+" : "+message));
         };
 
         client.onReceivedWhosOnline = function(users) {
@@ -122,7 +122,7 @@
             //On affiche le message s'il est priver
             if( userCommande ){
                 if( userCommande['type'] == '@'){
-                    $('#messages').append($('<li>').text("from -> "+client.user.pseudo+" : "+userCommande['arg']));
+                    $('#messages').append($('<li>').text("To "+userCommande['commande']+" : "+userCommande['arg']));
                 }
             }
             //On envoie le message

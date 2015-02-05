@@ -4,6 +4,7 @@ var USER_CONNECTED = 'user connected',
     MESSAGE_RECEIVED = 'message received',
     MESSAGE_PRIVATE = 'message private',
     SHOW_WHOS_ONLINE = 'show whos online',
+    DISCONNECT = 'disconnect',
     PORT = 8181,
     commandes = {
         'users' : 'users',
@@ -15,14 +16,6 @@ function User(pseudo, color) {
         'pseudo' : pseudo,
         'color'  : color,
     };
-}
-
-function Client(socket, io, connectArg) {
-    this.questions = new Array();
-    this.user;
-    this.socket = (socket) ? socket : false;
-    this.io = (io) ? io : false;
-    this.connectArg = (!connectArg) ? "": connectArg;
 }
 
 function isCommande(msg) {
@@ -37,11 +30,26 @@ function isCommande(msg) {
     };
 }
 
-Client.prototype.setUser = function(pseudo, color, user){
-    if (typeof(user) != 'undefined') {
-        this.user = user;
-    } else {
-        this.user = User(pseudo, color);
+function Client(socket, io, connectArg) {
+    this.questions = new Array();
+    this.user;
+    this.socket = (socket) ? socket : false;
+    this.io = (io) ? io : false;
+    this.connectArg = (!connectArg) ? "": connectArg;
+}
+
+/**
+ * Exemple d'utilisation :
+ *      client.setUser(user);
+ *      client.setUser(pseudo, color);
+ */
+Client.prototype.setUser = function(){
+    this.user = arguments[0];
+    if (arguments.length == 2) {
+        this.user = User(arguments[0], arguments[1]);
+    }
+    if (this.socket) {
+        this.socket.user = this.user;
     }
 }
 
@@ -49,8 +57,27 @@ Client.prototype.getUser = function(){
     return this.user;
 }
 
+/**
+ * emit peut prendre un nombre variable d'arguments.
+ * exemple:
+ *      emit('event', arg1, arg2, ...);
+ * petit truc en plus pour le server:
+ *      Si un argument de type boolean est précisé avant l'événement
+ *      alors l'événement emis le sera à tous le monde sauf le client lui même.
+ *      exemple: emit(true, 'event', arg1, arg2, ...);
+ */
 Client.prototype.emit = function() {
-    this.socket.emit(arguments[0], arguments[1]);
+    var broadcast = false, evt = arguments[0], args = arguments[1];
+    if (arguments.length == 3) {
+        broadcast = arguments[0];
+        evt = arguments[1];
+        args = arguments[2];
+    }
+    if (!broadcast) {
+        this.socket.emit(evt, args);
+    } else {
+        this.socket.broadcast.emit(evt, args);
+    }
 }
 
 Client.prototype.question = function() {
@@ -90,6 +117,8 @@ Client.prototype.onReceivedWhosOnline = function(users) {
     console.log(users);
 }
 
+Client.prototype.onDisconnect = function(){}
+
 Client.prototype.init = function() {
     var isClient = false;
     if (!this.socket) {
@@ -106,6 +135,7 @@ Client.prototype.init = function() {
     this.socket.on(MESSAGE_RECEIVED, this.onMessageReceived);
     this.socket.on(MESSAGE_PRIVATE, this.onMessagePrivate);
     this.socket.on(SHOW_WHOS_ONLINE, this.onReceivedWhosOnline);
+    this.socket.on(DISCONNECT, this.onDisconnect);
     if (isClient) {
         this.emit(USER_CONNECTED, this.user);
     }
@@ -121,6 +151,7 @@ try {
         MESSAGE_RECEIVED    : MESSAGE_RECEIVED,
         MESSAGE_PRIVATE     : MESSAGE_PRIVATE,
         SHOW_WHOS_ONLINE    : SHOW_WHOS_ONLINE,
+        DISCONNECT          : DISCONNECT,
         PORT                : PORT,
         isCommande          : isCommande,
         commandes           : commandes,

@@ -14,7 +14,7 @@ var client = new utils.Client(
 );
 
 client.onUserConnected = function(user) {
-    if (!(user.pseudo == client.user.pseudo && user.color == client.user.color)) {
+    // if (!(user.pseudo == client.user.pseudo && user.color == client.user.color)) {
         notifier.notify({
             'title': 'New user is connected:',
             'message': user.pseudo,
@@ -22,7 +22,7 @@ client.onUserConnected = function(user) {
         rl.prompt(true);
         console.log(color(user.pseudo+" is connected", 'italic'));
         rl.prompt(true);
-    }
+    // }
 };
 client.onUserDisconnected = function(user) {
     rl.prompt(true);
@@ -31,26 +31,36 @@ client.onUserDisconnected = function(user) {
 };
 
 client.onMessageReceived = function(msg, user) {
-
     if (!(user.pseudo == client.user.pseudo && user.color == client.user.color)) {
         notifier.notify({
             'title': 'New message received:',
             'message': user.pseudo+": "+msg,
         });
         rl.prompt(true);
-        console.log(user.pseudo+": "+msg);
+        console.log(color(user.pseudo+": ", user.color)+msg);
         rl.prompt(true);
     }
 };
 
 client.onMessagePrivate = function(msg, user) {
+    notifier.notify({
+        'title': 'New private message:',
+        'message': "from "+user.pseudo,
+    });
     rl.prompt(true);
-    console.log(color("From ", 'italic')+color(user.pseudo, user.color)+": "+msg);
+    console.log(color("From ", 'italic')+color(user.pseudo+": ", user.color)+msg);
     rl.prompt(true);
 };
 
 client.onReceivedWhosOnline = function(users) {
-    console.log(users);
+    rl.setPrompt('');
+    console.log('');
+    for (var i = 0; i < users.length; i++) {
+        console.log(color(users[i].pseudo, 'italic'));
+        rl.prompt(true);
+    }
+    rl.setPrompt('> ');
+    rl.prompt(true);
 };
 
 client.addQuestion(function(){
@@ -90,49 +100,6 @@ rl.on('SIGINT', function(){
 });
 
 client.question();
-
-// process.exit(0);
-
-// function init() {
-//     var user = utils.User(pseudo, userColor);
-//
-//     rl.setPrompt(color("> ", userColor), 2);
-//     rl.prompt(true);
-//
-//     var socket = io.connect('http://192.168.43.202:8181');
-//
-//     socket.emit(utils.USER_CONNECTED, user);
-//
-//     rl.on(utils.TERM_LINE, function (msg) {
-//         socket.emit(utils.message, msg, user);
-//         rl.prompt(true);
-//     });
-//
-//     rl.on(utils.TERM_CLOSE, function(){
-//         console.log("\nClosed");
-//         rl.close();
-//         socket.emit(utils.USER_DISCONNECTED, user);
-//     });
-//
-//     socket.on(utils.CHAT_MESSAGE, function (msg, user) {
-//         console.log(msg);
-//         rl.prompt(true);
-//     });
-//
-//     socket.on(utils.USER_CONNECTED, function(user){
-//         console.log(color(user.pseudo + " is connected", 'italic'));
-//         rl.prompt(true);
-//     });
-//
-//     socket.on(utils.USER_DISCONNECTED, function(userDisconnected){
-//         if (user.pseudo === userDisconnected.pseudo) {
-//             console.log(color("Bye bye!", 'italic'));
-//             process.exit(0);
-//         } else {
-//             console.log(color(userDisconnected.pseudo + " is disconnected", 'italic'));
-//         }
-//     });
-// }
 
 // process.argv.forEach(function(val, index, array){
 //     switch (index) {

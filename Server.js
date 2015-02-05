@@ -15,13 +15,16 @@ function traitementDeLaCommande(commandeUser, currentSocket, currentUser){
     if(commandeUser['type'] == '@'){
         //TRAITMENT DU MESSAGE PRIVER
         for(var i= 0; i < io.sockets.sockets.length; i++ ){
+            //sockets[i].user possible car client.setUser rajoute également le user dans le socket.
             if(io.sockets.sockets[i].user.pseudo == commandeUser['commande']){
+                console.log(io.sockets.sockets[i].user.pseudo);
                 io.sockets.sockets[i].emit(utils.MESSAGE_PRIVATE, commandeUser.arg, currentUser);
                 messageSend = true;
             }
         };
-        if(!messageSend)
+        if(!messageSend) {
             currentSocket.emit(utils.MESSAGE_PRIVATE, "User "+commandeUser.commande+" not exist",me);
+        }
     }
     else{
         //TRAITEMENT DES COMMANDES
@@ -34,43 +37,39 @@ function traitementDeLaCommande(commandeUser, currentSocket, currentUser){
 }
 
 io.on('connection', function (socket) {
-    var user;
     var client = new utils.Client(socket);
 
     client.onUserConnected = function(user) {
-        this.user = user;
-        users.push(this.user);
-        for(var i= 0; i < io.sockets.sockets.length; i++ ){
-            if(io.sockets.sockets[i].user != this.user){
-                io.sockets.sockets[i].emit(utils.USER_CONNECTED, this.user);
-            }
-        }
-
-        console.log("connect : "+this.user.pseudo);
-    }
+        client.setUser(user);
+        // client.socket.user = user;
+        users.push(client.user);
+        client.emit(true, utils.USER_CONNECTED, client.user);
+        console.log("connect : "+client.user.pseudo);
+    };
 
     client.onMessageSend = function(msg) {
         commandeUser = utils.isCommande(msg);
         if( !commandeUser )
-            io.sockets.emit(utils.MESSAGE_RECEIVED, msg, this.user);
+            io.sockets.emit(utils.MESSAGE_RECEIVED, msg, client.user);
         else{
-            traitementDeLaCommande(commandeUser, socket, this.user);
+            traitementDeLaCommande(commandeUser, client.socket, client.user);
         }
-    }
+    };
 
-    client.init();
-
-    socket.on('disconnect',function(){
+    client.onDisconnect = function(){
         for(var i= 0; i < users.length; i++ ){
-            if(users[i] == this.user){
+            if(users[i] == client.user){
                 users.splice(i,1);
             }
         }
+        console.log('user disconnected '+client.user.pseudo);
+        client.emit(true, utils.USER_DISCONNECTED, client.user);
+    };
 
-        console.log('user disconnected '+this.user.pseudo);
-        io.sockets.emit(utils.USER_DISCONNECTED, this.user);
-    });
+    client.init();
+
 });
+
 app.use(express.static(__dirname));
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');
