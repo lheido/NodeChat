@@ -49,9 +49,10 @@ io.on('connection', function (socket) {
 
     client.onMessageSend = function(msg) {
         commandeUser = utils.isCommande(msg);
-        if( !commandeUser )
+        if ( !commandeUser ) {
+            // client.emit(true, utils.MESSAGE_RECEIVED, msg, client.user);
             io.sockets.emit(utils.MESSAGE_RECEIVED, msg, client.user);
-        else{
+        } else{
             traitementDeLaCommande(commandeUser, client.socket, client.user);
         }
     };
