@@ -71,8 +71,8 @@
         var client = new Client(false,io,false);
         client.onUserConnected = function(user){
             $("#nouveaumenbre p").html(user.pseudo+" viens de se connecter");
-            $( "#nouveaumenbre" ).show(300).delay(2000).fadeOut(1000);
-            $('#userconnected').append($('<li class="connected">').text(user.pseudo));
+            $("#nouveaumenbre").show(300).delay(2000).fadeOut(1000);
+            $('#userconnected').append( $('<li class="connected" style="color:'+user.color+';">').text(user.pseudo) );
         };
 
         client.onUserDisconnected = function(user){
@@ -87,17 +87,17 @@
         };
 
         client.onMessageReceived = function(message,user){
-            $('#messages').append($('<li>').text(user.pseudo+" : "+message));
+            $('#messages').append($('<li style="color:'+user.color+';">').text(user.pseudo+" : "+message));
         };
 
         client.onMessagePrivate = function(message,user){
-            $('#messages').append($('<li>').text("From "+user.pseudo+" : "+message));
+            $('#messages').append($('<li style="color:'+user.color+';">').text("From "+user.pseudo+" : "+message));
         };
 
         client.onReceivedWhosOnline = function(users) {
             $('#userconnected li').remove();
             for(var i= 0; i < users.length; i++ ){
-                $('#userconnected').append($('<li class="connected">').text(users[i].pseudo));
+                $('#userconnected').append( $('<li class="connected" style="color:'+users[i].color+';">').text(users[i].pseudo) );
             }
         }
 
